@@ -97,7 +97,7 @@ module Digital
         def connect_nonblock(io_like, endpoint, timeout)
           # IO.connect_nonblock retrun value is different across multiple platform.
           io_like.connect_nonblock(endpoint) 
-          io_like
+          Either.right(self)
         rescue Errno::EINPROGRESS # connection in progress, wait a bit.
           IO.select(nil, [io_like], nil, timeout) ? retry : nil
         rescue Errno::EISCONN # The socket is already connected.
