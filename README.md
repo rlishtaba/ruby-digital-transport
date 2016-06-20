@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/rlishtaba/digital-transport.svg?branch=master)](https://travis-ci.org/rlishtaba/digital-transport)
+[![Build Status](https://travis-ci.org/rlishtaba/ruby-digital-transport.svg?branch=master)](https://travis-ci.org/rlishtaba/ruby-digital-transport)
 
 # Digital::Transport
 
