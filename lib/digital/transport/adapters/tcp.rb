@@ -30,9 +30,10 @@ module Digital
           Socket.new(AF_INET, SOCK_STREAM, 0).tap do |socket|
             socket.setsockopt(IPPROTO_TCP, TCP_NODELAY, (@opts[:tcp_nodelay] || DEFAULTS[:tcp_no_delay]).to_i)
             return connect_nonblock(
-                socket,
-                Socket.pack_sockaddr_in(@port, @ip),
-                @opts[:timeout].to_i.nonzero? || DEFAULTS[:timeout])
+              socket,
+              Socket.pack_sockaddr_in(@port, @ip),
+              @opts[:timeout].to_i.nonzero? || DEFAULTS[:timeout]
+            )
           end
         end
 
