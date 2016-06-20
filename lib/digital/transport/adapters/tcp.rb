@@ -30,9 +30,10 @@ module Digital
           Socket.new(AF_INET, SOCK_STREAM, 0).tap do |socket|
             socket.setsockopt(IPPROTO_TCP, TCP_NODELAY, (@opts[:tcp_nodelay] || DEFAULTS[:tcp_no_delay]).to_i)
             return connect_nonblock(
-                socket,
-                Socket.pack_sockaddr_in(@port, @ip),
-                @opts[:timeout].to_i.nonzero? || DEFAULTS[:timeout])
+              socket,
+              Socket.pack_sockaddr_in(@port, @ip),
+              @opts[:timeout].to_i.nonzero? || DEFAULTS[:timeout]
+            )
           end
         end
 
@@ -94,7 +95,9 @@ module Digital
 
         # @api private
         def connect_nonblock(io_like, endpoint, timeout)
-          io_like.connect_nonblock(endpoint)
+          # IO.connect_nonblock retrun value is different across multiple platform.
+          io_like.connect_nonblock(endpoint) 
+          io_like
         rescue Errno::EINPROGRESS # connection in progress, wait a bit.
           IO.select(nil, [io_like], nil, timeout) ? retry : nil
         rescue Errno::EISCONN # The socket is already connected.
