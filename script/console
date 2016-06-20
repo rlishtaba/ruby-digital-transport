@@ -1,0 +1,9 @@
+#!/usr/bin/env ruby
+
+require 'bundler/setup'
+require 'digital/transport'
+
+require 'irb'
+require 'irb/completion'
+
+IRB.start

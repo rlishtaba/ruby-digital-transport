@@ -1,0 +1,11 @@
+Documentation:
+  Enabled: false
+Metrics/LineLength:
+  Max: 120
+Style/IndentHash:
+  Enabled: false
+AllCops:
+  Exclude:
+    - vendor/**/*
+    - bin/**/*
+    - doc/**/*

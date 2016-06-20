@@ -1,0 +1,13 @@
+/*.gems
+/*.idea
+/*.iml
+/.yardoc
+/Gemfile.lock
+/algorithm.iml
+/atlassian-ide-plugin.xml
+/coverage
+/debugger.rb
+/doc
+/pkg
+/rspec.xml
+.DS_Store
