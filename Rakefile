@@ -32,4 +32,4 @@ RSpec::Core::RakeTask.new do |t|
   t.rspec_opts = '--format RspecJunitFormatter  --out rspec.xml --tag ~wip'
 end
 
-task default: [:spec, :features]
+task default: [:spec]
