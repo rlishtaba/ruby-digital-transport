@@ -1,8 +1,8 @@
+[![Build Status](https://travis-ci.org/rlishtaba/digital-transport.svg?branch=master)](https://travis-ci.org/rlishtaba/digital-transport)
+
 # Digital::Transport
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/digital/transport`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+Unified interface to TCP, Serial & USB communication adapters.
 
 ## Installation
 
@@ -22,13 +22,25 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
-
-## Development
-
-After checking out the repo, run `bin/setup` to install dependencies. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
-
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+    require 'digital/transport'
+    
+    include Digital::Transport::Adapters
+    
+    connected = -> x {
+         x.write("Hello, World!") #=> either monad
+         x.read 2                 #=> either monad
+    }
+    
+    failed = -> x {
+         # perform exceptional situation handling
+         # x will be yielded in to function as an Exception covariant interface.
+         puts "Wasn't able to connect due to: #{x.message}. Handling failure."
+    }
+    
+    maybe = new_tcp_adapter('10.0.0.250', 6789).connect
+    
+    maybe.either(failed, connected)
+    
 
 ## Contributing
 

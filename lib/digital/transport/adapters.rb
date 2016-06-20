@@ -22,7 +22,7 @@ module Digital
     # }
     #
     # @see Tcp#connect
-    # maybe = new_tcp_adapter('10.0.0.250', 12000).connect
+    # maybe = new_tcp_adapter('10.0.0.250', 6789).connect
     #
     # @see Either#either
     # maybe.either(failed, connected)
