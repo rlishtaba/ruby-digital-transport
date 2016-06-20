@@ -97,15 +97,19 @@ module Digital
         def connect_nonblock(io_like, endpoint, timeout)
           # IO.connect_nonblock retrun value is different across multiple platform.
           io_like.connect_nonblock(endpoint) 
-          Either.right(self)
+          raise Errno::EISCONN
         rescue Errno::EINPROGRESS # connection in progress, wait a bit.
           IO.select(nil, [io_like], nil, timeout) ? retry : nil
         rescue Errno::EISCONN # The socket is already connected.
-          @io = io_like
+          init_io io_like
           Either.right(self)
         rescue => ex
           Either.left(ex)
         end
+        
+        def init_io(io)
+          @io = io
+        end    
       end
     end
   end
