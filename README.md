@@ -22,6 +22,7 @@ Or install it yourself as:
 
 ## Usage
 
+```ruby
     require 'digital/transport'
     
     include Digital::Transport::Adapters
@@ -40,7 +41,7 @@ Or install it yourself as:
     maybe = new_tcp_adapter('10.0.0.250', 6789).connect
     
     maybe.either(failed, connected)
-    
+```    
 
 ## Contributing
 
