@@ -10,47 +10,32 @@ module Digital
         include Digital::Transport::Errors
         include Digital::Transport::Adapters::Interface
 
-        DEFAULTS = { timeout: 10 }.freeze
+        DEFAULTS = { timeout: 10, tcp_no_delay: 1 }.freeze
 
-        def initialize(ip, port)
-          @ip = ip
+        def initialize(ip, port, opts = {})
+          @ip = ip.freeze
+          @opts = DEFAULTS.merge(opts.dup).freeze
           @port = port
           @io = nil
-          yield self if block_given?
         end
 
-        # @return [Either] either monad representing a value of one of two possible types
+        # @return [Either] monad representing a value of one of two possible types
         # 1. Exception covariant
         # 2. Adapter interface invariant
         #
-        # @example
+        # @see Adapters#new_tcp_adapter
         #
-        # include Digital::Transport::Adapters
-        #
-        # on_success = -> x {
-        #      puts "connection open? -> #{x.open?}"
-        #      x.write("Hello, World!") =>
-        #      x.read 2 #=>
-        # }
-        # on_failure = -> x { puts "Wasn't able to connect due to: #{x.message}" }
-        #
-        # maybe = new_tcp_adapter('10.0.0.250', 12000).connect
-        # maybe.either(on_failure, on_success)
-        #
-        def connect(opt = { timeout: 10, tcp_no_delay: 1 })
+        def connect
           return open? if open?
-          map = opt.dup.freeze
           Socket.new(AF_INET, SOCK_STREAM, 0).tap do |socket|
-            socket.setsockopt(IPPROTO_TCP, TCP_NODELAY, map[:tcp_nodelay].to_i)
+            socket.setsockopt(IPPROTO_TCP, TCP_NODELAY, (@opts[:tcp_nodelay] || DEFAULTS[:tcp_no_delay]).to_i)
             return connect_nonblock(
                 socket,
                 Socket.pack_sockaddr_in(@port, @ip),
-                map[:timeout].to_i.nonzero? || DEFAULTS[:timeout])
+                @opts[:timeout].to_i.nonzero? || DEFAULTS[:timeout])
           end
         end
 
-        # @raise [Errno::ECONNRESET] if connection reset by peer
-        #
         # @return [Boolean] representing operation state
         def close
           return !open? unless open?
@@ -60,14 +45,11 @@ module Digital
           !open?
         end
 
-        # @raise [Errno::ECONNRESET] if connection reset by peer
-        # @return [Ethernet] it self
         def flush
           @io && @io.flush
         end
 
         # @param [String] string
-        # @return [Fixnum] representing amount of bytes written
         def write(string)
           raise NotConnected unless open?
           written = 0
@@ -90,10 +72,9 @@ module Digital
 
         # @param [Fixnum] count how many bytes to read
         # @param [Boolean] should_block which will simulate blocking function
-        # @return [String, nil] the String which was received or nil otherwise
         def read(count, should_block = false)
           raise NotConnected unless open?
-          Either.right @io.read_nonblock(count).tap
+          Either.right @io.read_nonblock(count)
         rescue IO::WaitReadable
           if should_block
             IO.select [@io]
@@ -111,6 +92,7 @@ module Digital
 
         private
 
+        # @api private
         def connect_nonblock(io_like, endpoint, timeout)
           io_like.connect_nonblock(endpoint)
         rescue Errno::EINPROGRESS # connection in progress, wait a bit.

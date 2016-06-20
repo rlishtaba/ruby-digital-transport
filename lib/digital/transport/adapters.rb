@@ -34,12 +34,12 @@ module Digital
 
       private_constant :Tcp, :Serial
 
-      def new_tcp_adapter(ip, port)
-        Tcp.new(ip.dup.freeze, port)
+      def new_tcp_adapter(ip, port, opts = {})
+        Tcp.new(ip.dup.freeze, port, opts.dup.freeze)
       end
 
-      def new_serial_adapter(_port, _opts = {})
-        raise NotImplementedError
+      def new_serial_adapter(port, opts = {})
+        Serial.new(port, opts.dup.freeze)
       end
 
       def new_usb_adapter(_port, _opts = {})

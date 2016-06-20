@@ -20,7 +20,7 @@ module Digital
           not_implemented __method__
         end
 
-        def connect(_opts = {})
+        def connect
           not_implemented __method__
         end
 
