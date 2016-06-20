@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
 
   spec.summary = %q{interface between multiple transport adapters}
   spec.description = %q{Library intended to unify interface between multiple transport adapters}
-  spec.homepage = 'http://www.lishtaba.com'
+  spec.homepage = 'https://github.com/rlishtaba/ruby-digital-transport'
   spec.license = 'MIT'
   spec.files = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features|bin)/}) }
   spec.bindir = 'exe'
