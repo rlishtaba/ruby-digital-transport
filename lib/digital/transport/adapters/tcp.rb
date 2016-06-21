@@ -58,9 +58,6 @@ module Digital
           while 0 < string.bytesize
             begin
               written = @io.write_nonblock(string)
-            rescue IO::WaitReadable
-              IO.select([@io])
-              retry
             rescue IO::WaitWritable
               IO.select(nil, [@io])
               retry
