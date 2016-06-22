@@ -6,17 +6,10 @@ module Digital
       class Serial
         include Digital::Transport::Errors
         include Digital::Transport::Adapters::Interface
-        include CommPort
         include Functional
+        include Rs232
 
-        DEFAULTS = {
-            timeout: 10,
-            baud_rate: CommPort::BAUD_115200,
-            data_bits: CommPort::DATA_BITS_8,
-            parity: CommPort::PAR_NONE,
-            stop_bits: CommPort::STOP_BITS_1,
-            flow_control: CommPort::FLOW_OFF
-        }.freeze
+        DEFAULTS = { timeout: 10 }.freeze
 
         def initialize(port, opt = {})
           @port = port.freeze
@@ -31,15 +24,7 @@ module Digital
         # @see Adapters#new_serial_adapter
         #
         def connect
-          io = Rs232.new(@port)
-          io.connecting_timeout = @opts[:timeout].to_i if p.respond_to?(:connecting_timeout)
-          io.open
-          io.baud_rate = @opts[:baud_rate].to_i
-          io.data_bits = @opts[:data_bits].to_i
-          io.parity = @opts[:parity].to_i
-          io.stop_bits = @opts[:stop_bits].to_i
-          io.flow_control = @opts[:flow_control].to_i
-          @io = io
+          @io = new_serial_port(@port, @opts).tap(&:connect)
           Either.right(self)
         rescue Exception => ex
           Either.left(ex)
@@ -64,7 +49,7 @@ module Digital
         end
 
         def open?
-          @io && !@io.closed?
+          @io && @io.open?
         end
 
         def read(count, blocking = false)
@@ -84,6 +69,7 @@ module Digital
           end
           Either.right(array.empty? ? nil : array.join)
         rescue => ex
+          @io.close
           Either.left(ex)
         end
 
