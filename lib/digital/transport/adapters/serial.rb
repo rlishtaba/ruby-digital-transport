@@ -1,4 +1,5 @@
 require 'rs_232'
+require 'timeout'
 
 module Digital
   module Transport
@@ -54,20 +55,8 @@ module Digital
 
         def read(count, blocking = false)
           raise NotConnected unless open?
-          array = []
-
-          bytes_count = (count == -1) ? @io.available? : count
-
-          if blocking
-            bytes = read_io_until(count, count)
-            array.push bytes if bytes
-          else
-            bytes_count.times do
-              byte = @io.read(1)
-              array.push byte if byte
-            end
-          end
-          Either.right(array.empty? ? nil : array.join)
+          f = blocking ? method(:read_blocking) : method(:read_non_blocking)
+          Either.right f.(count)
         rescue => ex
           @io.close
           Either.left(ex)
@@ -75,32 +64,18 @@ module Digital
 
         private
 
-        # @api private
-        #
-        # simulate blocking function
-        #
-        # @param [Fixnum] count
-        # @param [Fixnum] up_to
-        #
-        # no direct ruby usage
-        #
-        def block_io_until(count, up_to)
-          up_to -= 1 while @io.available? < count && up_to > 0
-          up_to > 0
+        def read_non_blocking(count)
+          @io.read(count)
         end
 
-        # @api private
-        #
-        # simulate blocking function
-        #
-        # @param [Fixnum] count
-        # @param [Fixnum] up_to
-        #
-        # no direct ruby usage
-        #
-        def read_io_until(count, up_to)
-          sleep 0.001 until block_io_until(count, up_to)
-          read(count)
+        # todo: shouldn't block forever.
+        def read_blocking(count)
+          bytes = ''
+          while bytes.length < count
+            bytes += read_non_blocking(count).to_s
+            sleep 0.001
+          end
+          bytes
         end
       end
     end

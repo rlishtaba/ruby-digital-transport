@@ -1,5 +1,5 @@
 module Digital
   module Transport
-    VERSION = '0.8.2'.freeze
+    VERSION = '0.8.3'.freeze
   end
 end
