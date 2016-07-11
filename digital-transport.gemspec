@@ -27,5 +27,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rspec', '~> 3.4'
 
   spec.add_dependency 'functional-ruby'
-  spec.add_dependency 'rs_232', '~>3.0.0.pre3' unless RUBY_PLATFORM === /java/
+  spec.add_dependency 'rs_232', '~>3.0.0.pre4' unless RUBY_PLATFORM === /java/
 end
