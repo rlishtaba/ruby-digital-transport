@@ -7,16 +7,15 @@ module Digital
     module Adapters
       class Tcp
         include Functional
-        include Socket::Constants
         include Digital::Transport::Errors
         include Digital::Transport::Adapters::Interface
 
-        DEFAULTS = { timeout: 10, tcp_no_delay: 1 }.freeze
+        DEFAULTS = { timeout: 10, tcp_nodelay: 1 }.freeze
 
         def initialize(ip, port, opts = {})
-          @ip = ip.freeze
+          @ip = FinalVar.new(ip)
           @opts = DEFAULTS.merge(opts.dup).freeze
-          @port = port
+          @port = FinalVar.new(port)
           @io = nil
         end
 
@@ -28,11 +27,11 @@ module Digital
         #
         def connect
           return open? if open?
-          Socket.new(AF_INET, SOCK_STREAM, 0).tap do |socket|
-            socket.setsockopt(IPPROTO_TCP, TCP_NODELAY, (@opts[:tcp_nodelay] || DEFAULTS[:tcp_no_delay]).to_i)
+          Socket.new(Socket::AF_INET, Socket::SOCK_STREAM, 0).tap do |socket|
+            socket.setsockopt(Socket::IPPROTO_TCP, Socket::TCP_NODELAY, @opts[:tcp_nodelay].to_i)
             return connect_nonblock(
                 socket,
-                Socket.pack_sockaddr_in(@port, @ip),
+                Socket.pack_sockaddr_in(@port.value, @ip.value),
                 @opts[:timeout].to_i.nonzero? || DEFAULTS[:timeout]
             )
           end
